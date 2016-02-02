@@ -73,13 +73,62 @@
         return css_test;
     }
     function define_performance() {
-        var performance = {};
+        var perf = {};
+        var memory = window.performance.memory;
+        var timing = window.performance.timing;
+        perf.networkLatency = function() {
+            return timing.responseEnd - 
+                timing.fetchStart;
+        }
+        perf.redirectTime = function() {
+            return timing.redirectEnd - timing.redirectStart;
+        }
+        perf.memoryUsage = function() {
+            if (memory != undefined) {
+                return memory.usedJSHeapSize / memory.totalJSHeapSize;
+            }
+            else {
+                return undefined;
+            }
+        }
+
+        perf.fpsValue = 0;
+        perf.fpsRunning = false;
+        perf.fpsStart = function(renderFunc){
+            perf.fpsRunning = true;
+        }
+        perf.fpsEnd = function() {
+            perf.fpsRunning = false;
+        }
+        perf.fps = function() {
+            return perf.fpsValue; 
+        }
+        return perf;
     }
     function define_library(){
         var Baymax = {};
         var name = "Timmy";
         Baymax.greet = function(){
             alert("Hello I'm Baymax!");
+        }
+        Baymax.aboutBrowser = function() {
+            var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || []; 
+            if(/trident/i.test(M[1])){
+                tem=/\brv[ :]+(\d+)/g.exec(ua) || []; 
+                return {name:'IE',version:(tem[1]||'')};
+                }   
+            if(M[1]==='Chrome'){
+                tem=ua.match(/\bOPR\/(\d+)/)
+                if(tem!=null)   {return {name:'Opera', version:tem[1]};}
+                }   
+            M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+            if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
+            return {
+                type: 'browser',
+                os: navigator.platform,
+                browser_name: M[0],
+                browser_version: M[1]
+            };
         }
         Baymax.html5_test = define_html5_test();
         Baymax.css_test = define_css_test();
