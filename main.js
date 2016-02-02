@@ -42,6 +42,7 @@
         }
         return html5_test;
     }
+
     function define_css_test() {
         var css_test = {};
         var div = document.createElement('div');
@@ -72,6 +73,7 @@
         }
         return css_test;
     }
+
     function define_performance() {
         var perf = {};
         var memory = window.performance.memory;
@@ -83,7 +85,7 @@
         perf.redirectTime = function() {
             return timing.redirectEnd - timing.redirectStart;
         }
-        perf.memoryUsage = function() {
+        perf.memoryUsage = function() { //available in Chrome
             if (memory != undefined) {
                 return memory.usedJSHeapSize / memory.totalJSHeapSize;
             }
@@ -92,19 +94,42 @@
             }
         }
 
-        perf.fpsValue = 0;
+        var counter  = 0;
+        perf.lastframe = 0;
         perf.fpsRunning = false;
+        perf.renderFunc = null;
+        perf.fpsUpdate = function() {
+            console.log(perf.fps());
+            if (perf.fpsRunning) {
+                perf.lastframe = performance.now();
+                perf.renderFunc();
+                window.requestAnimationFrame(perf.fpsUpdate);
+            }
+            counter ++;
+            if (counter == 200){
+                perf.fpsRunning = false;
+            }
+        }
         perf.fpsStart = function(renderFunc){
+            perf.renderFunc = renderFunc;
             perf.fpsRunning = true;
+            perf.fpsUpdate();
         }
         perf.fpsEnd = function() {
             perf.fpsRunning = false;
         }
         perf.fps = function() {
-            return perf.fpsValue; 
+            return parseInt(1000/(performance.now() - perf.lastframe)); 
         }
         return perf;
     }
+
+    function define_testcase() {
+        var testcase = {};
+
+        return testcase;
+    }
+
     function define_library(){
         var Baymax = {};
         var name = "Timmy";
@@ -133,6 +158,7 @@
         Baymax.html5_test = define_html5_test();
         Baymax.css_test = define_css_test();
         Baymax.performance = define_performance();
+        Baymax.testcase = define_testcase();
         return Baymax;
     }
     //define globally if it doesn't already exist
