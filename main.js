@@ -4,8 +4,8 @@
     function define_html5_test() {
         var html5_test = {};
         html5_test.existsElement = function(tag) {
-            var element = document.createElement(tag);
-            return Object.prototype.toString.call(element) !== '[object HTMLUnknownElement]';
+            return Object.prototype.toString.apply(document.createElement(tag)) !== 
+                '[object HTMLUnknownElement]';
         }
         html5_test.inputType = function(type) {
             var element = document.createElement('input');
@@ -99,7 +99,6 @@
         perf.fpsRunning = false;
         perf.renderFunc = null;
         perf.fpsUpdate = function() {
-            console.log(perf.fps());
             if (perf.fpsRunning) {
                 perf.lastframe = performance.now();
                 perf.renderFunc();
